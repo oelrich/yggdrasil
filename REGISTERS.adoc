@@ -1,0 +1,52 @@
+= REGISTERS
+
+.Registers
+|====
+|ABI Name |Register |Use | Savior
+
+|zero |x0 |Constant value 0 | -
+
+|ra |x1 |Return address / link register |caller
+
+|sp |x2 |Stack pointer |callee
+
+|gp |x3 |Global pointer | -
+
+|tp |x4 |Thread pointer | -
+
+|t0 |x5 |Temporary / alternate link register |caller
+
+|t1-2 |x6-7 |Temporary |caller
+
+|s0/fp |x8 |Saved register/frame pointer |callee
+
+|s1 |x9 |Saved register |callee
+
+|a0-1 |x10-11 |Argument / return value |caller
+
+|a2-7 |x12-17 |Argument |caller
+
+|s2-11 |x18-27 |Saved register |callee
+
+|t3-6 |x28-31 |Temporary |caller
+
+|====
+
+.FP Registers
+|====
+|ABI Name |Register |Use | Savior
+
+|ft0-7 |f0-7 |Temporary |caller
+
+|fs0-1 |f8-9 |Saved registers |callee
+
+|fa0-1 |f10-11 |Argument / return value |caller
+
+|fa2-7 |f12-17 |Argument |caller
+
+|fs2-11 |f18-27 |Saved register |callee
+
+|ft8-11 |f28-31 |Temporary |caller
+
+
+|====
