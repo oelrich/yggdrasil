@@ -63,15 +63,10 @@ hexen_stepper:
 #  j ready
 #ready_done:
 
-  j terminate
+  j _terminate
 
 hold:
   beq t1, t1, hold
-
-terminate:
-  li t0, 0x100000 # VIRT_TEST
-  li t1, 0x5555   # SHUTDOWN
-  sw t1, 0(t0)
 
 hex_print:
   addi t0, zero, 0xa
