@@ -1,5 +1,6 @@
 .section .text
 
+.global _write_char
 .global _write
 .global _read
 
@@ -12,6 +13,11 @@ _read:
   beq t1, zero, read_done
   lw a0, 0(t0)
 read_done:
+  ret
+
+_write_char:
+  li t0, UART
+  sw a0, 0(t0)
   ret
 
 # length in bytes (a0)

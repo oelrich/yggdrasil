@@ -1,5 +1,11 @@
 {
   "cSpell.words": [
-    "riscv"
+    "PHDRS",
+    "riscv",
+    "rodata",
+    "sbss"
+  ],
+  "cSpell.ignoreWords": [
+    "sdata"
   ]
 }

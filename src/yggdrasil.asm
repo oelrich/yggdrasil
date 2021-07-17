@@ -1,8 +1,8 @@
 .section .rodata
-hello:
-  .string "Hello World!\n"
-hello_len:
-  .word 0xd
+#hello:
+#  .string "Hello World!\n"
+#hello_len:
+#  .word 0xd
 heart:
   .string "❤️"
 heart_len:
@@ -11,74 +11,45 @@ yggdrasil:
   .string "🌳"
 yggdrasil_len:
   .word 0x4
-yes:
-  .string "yes"
-no:
-  .string "no"
+.section .data
+yggdrasil_lock:
+  .word 0x0
 
 .section .text
 .global _start
 
 _start:
-  csrr t0, mhartid
-  beq t0, zero, no_sleep
+  la t0, yggdrasil_lock
+  li t1, 1
+try_lock:
+  amoswap.w.aq t1, t1, (t0)
+  bnez t1, try_lock
+  lw a0, heart_len
+  la a1, heart
+  call _write # This bugs out on occasion ...
+  csrr s0, mhartid
+  mv a0, s0
+  call _num_to_hex
+  call _write_char
+  call _newline
+  call _write_char
+  la t0, yggdrasil_lock
+  amoswap.w.rl zero, zero, (t0)
+  beq s0, zero, no_sleep
   wfi
-no_sleep:  
+no_sleep:
+  call _newline
+  call _write_char
   lw a0, yggdrasil_len
   la a1, yggdrasil
   call _write
   call _newline
-
-  lw a0, heart_len
-  la a1, heart
-  call _write
+  call _write_char
   
-  csrr a0, mhartid
-  jal hex_print
-  call _newline
-
-  addi t5, zero, 15
-  addi a0, zero, 0
-hexen_stepper:
+  #csrr a0, mhartid
   #jal hex_print
-  addi a0, a0, 1
-  bne a0, t5, hexen_stepper
- # jal hex_print
-  call _newline
-
-  lw a0, hello_len
-  la a1, hello
-  call _write
-
-#  addi a0, zero, 0
-#  addi a1, zero, 0
-#  addi t5, zero, 113 # End on 'q'
-#ready:
-#  call _read
-#  mv a1, a0
-#  beq a1, zero, ready
-#  addi a0, zero, 1
-#  call _write
-#  beq a1, t5, ready_done
-#  j ready
-#ready_done:
-
-  j _terminate
+  call _terminate
 
 hold:
   beq t1, t1, hold
-
-hex_print:
-  addi t0, zero, 0xa
-  addi t1, a0, 0x30
-  blt a0, t0, hex_print_num
-  addi t1, t1, 0x7 # this should bump us up to alpha
-  mv a1, t1
-hex_print_num:
-  mv t5, ra
-  addi a0, zero, 1
-  call _write
-  mv ra, t5
-  ret
-
 
