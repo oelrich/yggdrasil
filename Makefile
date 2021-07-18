@@ -1,6 +1,5 @@
 all: yggdrasil
 
-
 yggdrasil: virt.lds \
 					 yggdrasil.o \
 					 uart.o \
