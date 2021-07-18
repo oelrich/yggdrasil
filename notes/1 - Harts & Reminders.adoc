@@ -1,0 +1,24 @@
+= Harts & Reminders
+
+:source-highlighter: highlight.js
+:source-language: riscvasm
+
+NOTE: These notes are valid for the commit they are written around. Check out the appropriate commit to make sense of things if it's not obvious what's being talked about.
+
+Here are some things that most likely are fairly obvious. But I did have troubles with the UART dumping weirdness on the channel, so I might as well write it down.
+
+== The finger is not the moon
+
+It took me longer than I'd like to admit to remember why me calling the `_newline` before `_write` didn't produce the thing I expected. The answer is of course that `_write` writes a string (i.e. a sequence of bytes and length stored in memory) and that I wanted something that wrote a single character.
+
+Another solution would have been to write the desired character to memory first, as a single character string. But that would require more work on memory management first. Hence `_write_char`.
+
+It could possibly also be a good idea to implement the string writer as something calling write char after loading next byte.
+
+But only if we could keep the target address loaded in a register.
+
+== Ships in the night
+
+After applying the above fix, I still got weirdness popping up every now and then. This was easier to pinpoint, but required more code to fix. The problem was that a hart on occasion mangled the writing of another hart.
+
+Easily fixed by mending fences and setting up a mutex.

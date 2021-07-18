@@ -1,11 +1,14 @@
 {
   "cSpell.words": [
     "PHDRS",
+    "UART",
+    "mutex",
     "riscv",
     "rodata",
     "sbss"
   ],
   "cSpell.ignoreWords": [
+    "riscvasm",
     "sdata"
   ]
 }
