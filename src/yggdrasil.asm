@@ -1,17 +1,18 @@
 .section .rodata
-#hello:
-#  .string "Hello World!\n"
-#hello_len:
-#  .word 0xd
+# Here are some constant strings.
+# They start by giving the length,
+# in bytes, and then the bytes.
 heart:
+  .word 0x6
   .string "❤️"
-heart_len:
-  .word 0x3
-yggdrasil:
-  .string "🌳"
-yggdrasil_len:
+spock:
   .word 0x4
-.section .data
+  .string "🖖"
+yggdrasil:
+  .word 0x4
+  .string "🌳"
+
+.section .bss
 yggdrasil_lock:
   .word 0x0
 yggdrasil_sleepers:
@@ -25,11 +26,10 @@ _start:
   li t1, 1
 try_lock:
   amoswap.w.aq t1, t1, (t0)
-  bnez t1, try_lock
-  lw a0, heart_len
-  la a1, heart
+  bnez t1, try_lock  
+  la a0, heart
   fence iorw,iorw
-  call _write # This bugs out on occasion ...
+  call _write_str # This bugs out on occasion ...
   csrr s0, mhartid
   mv a0, s0
   fence iorw,iorw
@@ -61,9 +61,17 @@ no_sleep:
   bne t2, t3, no_sleep
   call _newline
   call _write_char
-  lw a0, yggdrasil_len
-  la a1, yggdrasil
-  call _write
+
+  la a0, yggdrasil
+  call _write_str
+  call _newline
+  call _write_char
+
+  call _newline
+  call _write_char
+
+  la a0, spock
+  call _write_str
   call _newline
   call _write_char
   

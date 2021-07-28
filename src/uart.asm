@@ -1,7 +1,7 @@
 .section .text
 
 .global _write_char
-.global _write
+.global _write_str
 .global _read
 
 .equ UART, 0x10000000
@@ -20,24 +20,18 @@ _write_char:
   sw a0, 0(t0)
   ret
 
-# length in bytes (a0)
-# unicode bytes start (a1)
-_write:
-#  sw t0, 0(sp)
-#  sw t1, 1(sp)
-#  sw a0, 2(sp)
-#  sw a1, 3(sp)
+# length in bytes address 0(a0)
+# unicode bytes start     4(a0)
+_write_str:
+  lw t1, 0(a0)
+  addi t2, a0, 4
   li t0, UART
 writing_data:
-  beq a0, zero, writing_data_done
-  lw t1, 0(a1)
-  sw t1, 0(t0)
-  addi a1, a1, 1
-  addi a0, a0, -1
+  beq t1, zero, writing_data_done
+  lw t3, 0(t2)
+  sw t3, 0(t0)
+  addi t2, t2, 1
+  addi t1, t1, -1
   j writing_data
 writing_data_done:
-#  lw t0, 0(sp)
-#  lw t1, 1(sp)
-#  lw a0, 2(sp)
-#  lw a1, 3(sp)
   ret
