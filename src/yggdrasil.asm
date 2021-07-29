@@ -22,6 +22,11 @@ yggdrasil_sleepers:
 .global _start
 
 _start:
+  .option push
+  .option norelax
+  la gp, __global_pointer$
+  .option pop
+  la sp, __stack_pointer$
   la t0, yggdrasil_lock
   li t1, 1
 try_lock:
@@ -62,8 +67,20 @@ no_sleep:
   call _newline
   call _write_char
 
+
   la a0, yggdrasil
   call _write_str
+  call _newline
+  call _write_char
+  call _newline
+  call _write_char
+
+  mv a0, gp
+  call write_register
+  call _newline
+  call _write_char
+  mv a0, sp
+  call write_register
   call _newline
   call _write_char
 
@@ -82,3 +99,18 @@ no_sleep:
 hold:
   beq t1, t1, hold
 
+# Write a register in hex to the UART.
+write_register:
+  li s0, 64 # The number of bits to write.
+  mv s1, a0 # The bits we want to write.
+  mv s2, ra # The address we came from.
+write_more:
+  addi s0, s0, -4     # We write one hexadecimal (4 bit) character at a time.
+  srl a0, s1, s0      # We start with the highest bits we still haven't done.
+  andi a0, a0, 0xF    # And we only care about the last four bits.
+  call _num_to_hex    # Transform the bits to a hexadecimal character.
+  call _write_char    # Print the character to the UART.
+  bnez s0, write_more # If we have bits left, we write more.
+wrote_register:
+  mv ra, s2 # Restore the address we came from.
+  ret
