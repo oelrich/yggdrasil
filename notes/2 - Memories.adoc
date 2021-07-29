@@ -3,4 +3,6 @@
 :source-highlighter: highlight.js
 :source-language: riscvasm
 
+In `virt.lds` we add two symbols (one of them a bit redundant): `__global_pointer$` and `__stack_pointer$`. The latter we use to initialise the `sp` register. The former I think has something to do with optimisation of memory access (i.e. how many offset bits are needed in some operations), but for the moment I'm quite happy to just load a pseudo-rationally selected value.
 
+I also added a helper function `write_register` that (surprisingly) writes the contents of `a0` to the UART.
