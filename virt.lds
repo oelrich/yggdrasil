@@ -31,6 +31,7 @@ SECTIONS
   .data : {
     . = ALIGN(4096);
     PROVIDE(_data_start = .);
+    PROVIDE( __global_pointer$ = . + (4K / 2) );
     *(.sdata .sdata.*) *(.data .data.*)
     PROVIDE(_data_end = .);
   } >ram AT>ram :data
@@ -43,4 +44,5 @@ SECTIONS
 
   PROVIDE(_memory_start = ORIGIN(ram));
   PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
+  PROVIDE(__stack_pointer$ = ORIGIN(ram) + LENGTH(ram));
 }
