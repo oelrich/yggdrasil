@@ -1,16 +1,9 @@
 = Yggdrasil
 
-== Tools
+I sometimes dream of a simpler world. A world where Google, Microsoft, Apple and Amazon has yet to drain all joy of computing. A world of ZX80s, C64s and software copied one character at a time from a magazine.
 
-* https://github.com/riscv/riscv-gnu-toolchain[]
-* https://github.com/riscv/riscv-openocd[]
-* https://github.com/riscv/riscv-isa-sim[]
-* https://gitlab.com/qemu-project/qemu[]
+This project is pure (and for now, virtual) escapism. The goal is to remember stuff from CS courses two decades ago or, failing that, invent stuff that can be useful in getting a RISC-V based system up and running.
 
-== Commands
+It will change. Slowly.
 
-If using Fish and installed under the path ...
-
-`set -x PATH /opt/riscv/bin $PATH`
-
-How to compile and run? See link:Makefile[`Makefile`] and link:yggdrasil.sh[`yggdrasil.sh`].
+There are some notes.
