@@ -1,0 +1,11 @@
+= Some useful things
+
+* http://bitsavers.trailing-edge.com/components/national/_appNotes/AN-0491.pdf[UART]
+* https://www.lammertbies.nl/comm/info/serial-uart[More UART]
+* https://www.scs.stanford.edu/10wi-cs140/pintos/specs/pc16550d.pdf[Even more UART]
+* https://twilco.github.io/riscv-from-scratch/2019/04/27/riscv-from-scratch-2.html[Really helpful notes]
+* https://notes.eddyerburgh.me/computer-architecture/instructions[RISC-V instructions]
+* https://github.com/riscv/riscv-asm-manual/blob/master/riscv-asm.md[Programmers manual]
+* https://shakti.org.in/docs/risc-v-asm-manual.pdf[RISC-V Assembly Manual]
+* https://shakti.org.in/docs/risc-v-asm-manual.pdf[RISC-V Specification]
+* https://cdn2.hubspot.net/hubfs/3020607/An%20Introduction%20to%20the%20RISC-V%20Architecture.pdf[It's a trap!]

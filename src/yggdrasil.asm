@@ -67,6 +67,7 @@ no_sleep:
   call _newline
   call _write_char
 
+  call _init_heap
 
   la a0, yggdrasil
   call _write_str
@@ -75,15 +76,47 @@ no_sleep:
   call _newline
   call _write_char
 
+  # Write global pointer
   mv a0, gp
   call write_register
   call _newline
   call _write_char
+
+  # Write stack pointer
   mv a0, sp
   call write_register
   call _newline
   call _write_char
+  
+  # Write start of heap.
+  la a0, __heap_start$
+  call write_register
+  call _newline
+  call _write_char
 
+  # Write entry in start of heap
+  la t1, __heap_start$
+  ld a0, 0(t1)
+  call write_register
+  call _newline
+  call _write_char
+  
+  addi a0, zero, 0x1
+  slli a0, a0, 63
+  call write_register
+  call _newline
+  call _write_char
+
+  addi a0, zero, 0x1
+  slli a0, a0, 63
+  srli a0, a0, 1
+  call write_register
+  call _newline
+  call _write_char
+  
+# Clear and write
+# Vulcan Greeting
+# before exiting.
   call _newline
   call _write_char
 
@@ -97,7 +130,8 @@ no_sleep:
   call _terminate
 
 hold:
-  beq t1, t1, hold
+  nop
+  j hold
 
 # Write a register in hex to the UART.
 write_register:
