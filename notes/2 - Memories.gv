@@ -1,0 +1,9 @@
+digraph Memory {
+  node [shape=record];
+  rankdir=LR;
+  root [label="
+  {Taken|Record size|<f0>Allocation size}
+  |Base addr|...|allocated bytes|...| Alignment
+  |{<f1>Taken|Record size|Allocation size}"]
+  root:f0 -> root:f1 [label="Base addr\l+ allocation size\l+ record size\l+ alignment"]
+}
