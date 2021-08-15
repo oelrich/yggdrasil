@@ -117,7 +117,14 @@ no_sleep:
   call _newline
   call _write_char
 
-  la a0, heart
+  li a0, 0x1
+  call _get_some
+#  li t0, 0xFF
+#  sd t0, 0(a0)
+  li a0, 0x5
+  call _get_some
+  
+  la a0, __heap_start$
   li a1, 16
   call write_memory_bytes
 
@@ -132,13 +139,15 @@ no_sleep:
   call _newline
   call _write_char
   
-  #csrr a0, mhartid
-  #jal hex_print
   call _terminate
 
-hold:
-  nop
-  j hold
+do_nothing_fast:
+  nop # No.
+  nop # Just don't.
+  nop # Take a break.
+  nop # Relax.
+  nop # Unrolled for speed.
+  j do_nothing_fast
 
 # Write a register in hex to the UART.
 write_register:

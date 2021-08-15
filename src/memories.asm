@@ -1,196 +1,28 @@
 .section .text
 
 .global _init_heap
-# .global _get_some
+.global _get_some
 
-# # allocatable memory starts at __heap_start$
-# # bits [max allocate]
-# #   f: [01] free/allocated
-# #   x0...xn: bytes till next block 
-# # f1xx xxxx (byte)
-# #  6 + 0x8 ->        64
-# # f01x xxxx xxxx xxxx (2 byte)
-# #  5 + 1x8 ->     8 192
-# # f001 xxxx xxxx xxxx xxxx xxxx xxxx xxxx (4 byte)
-# #  4 + 3x8 -> 268 435 456 (256 MB)
-# # f000 yyyy  (2^4 * 64 bit)
-# get_metadata_byte_count:
-#   addi t1, zero, 0x1
-#   slli t1, t1, 63 # Free bit.
-#   not t2, t1 # Mask all but free bit.
-#   and t0, t2, a0 # Save metadata without free bit.
-#   li a0, 1 # Set minimum no. bytes.
-#   srli t1, t1, 1 # super short
-#   and t2, t1, t0
-#   bnez t2, super_short
-#   srli t1, t1, 1  # shortish
-#   and t2, t1, t0
-#   bnez t2, shortish
-#   addi a0, 2
-# shortish:
-#   addi a0, 1
-# super_short:
-#   ret
-
-# # a0, metadata size
-# # a1, metadata
-# get_metadata_allocation_size:
-#   li t1, 0x1
-#   slli t1, t1, 63
-#   sra t1, t1, 1 # covers super short
-#   li t0, 1
-#   beq a0, t0, invert_it
-#   sra t1, t1, 1 # covers short
-#   li t0, 2
-#   beq a0, t0, invert_it
-#   sra t1, t1, 1 # covers massive  
-#   # super short: 0011 1111
-#   # short: 0001 1111 1111 1111
-#   # massive: 0000 1111 1111 1111 1111 1111 1111 1111
-# invert_it:
-#   not t1, t1 # Now we have the mask.
-#   and a0, a0, t1 # And now the metadata only contains size info.
-#   sub t0, 4, a0 # Figure out how many bytes to shift.
-#   mul t0, t0, 8 # Make them bits.
-#   srl a0, a1, t0 # Move the bits to the correct place.
-#   ret
-
-# is_metadata_allocated:
-#   mv a1, a0
-#   li t0, 0x80
-#   slli t0, t0, 56
-#   and a0, a0, t0
-#   ret
-
-# # Set the topmost bit of a0.
-# set_metadata_allocated:
-#   li t0, 0x80
-#   slli t0, t0, 56
-#   or a0, a0, t0
-#   ret
-
-# # Unset the topmost bit of a0.
-# set_metadata_free:
-#   li t0, 0x80
-#   slli t0, t0, 56
-#   not t0, t0
-#   and a0, a0, t0
-#   ret
-
-# load_metadata:
-#   mv t5, a0
-#   addi t0, zero, 0x1
-#   slli t1, t0, 63 # free/allocated bit
-#   and a0, t5, t1 # Set a0 to the value of free
-#   srli t2, t1, 1  # super short
-#   and t0, t5, t2
-#   bnez t0, super_short
-#   srli t3, t2, 1  # shortish
-#   and t0, t5, t3
-#   bnez t0, shortish
-#   srli t4, t3, 1  # massive
-#   and t0, t5, t4
-#   bnez t0, massive
-#   # We could not find a valid size.
-#   # Either we are at the end of the heap
-#   # or something has broken down.
-#   mv a0, zero
-#   mv a1, zero
-# finish:
-#   ret
-# massive: # f001 xxxx xxxxxxxx xxxxxxxx xxxxxxxx
-#   addi t0, zero, 0xFFFFFF
-#   slli t0, t0, 16
-#   addi t0, t0, 0xFFFFFFFF
-#   srli a1, t5, 32
-#   and a1, a1, t0
-#   j finish
-# super_short: # f1xx xxxx
-#   addi t0, zero, 0x3F
-#   srli a1, t5, 32 + 16 + 8
-#   and a1, a1, t0
-#   j finish
-# shortish: # f01x xxxx xxxx xxxx
-#   addi t0, zero, 0x3F
-#   slli t0, t0, 62 # free/allocated bit
-#   and a1, a1, t0
-#   j finish
-
-# get_allocation_block_offset:
-#   mv t5, a0
-#   addi t0, zero, 0x1
-#   slli t1, t0, 63 # free/allocated bit
-#   srli t2, t1, 1  # super short
-#   and t0, t5, t2
-#   bnez t0, super_short
-#   srli t3, t2, 1  # shortish
-#   and t0, t5, t3
-#   bnez t0, shortish
-#   srli t4, t3, 1  # massive
-#   and t0, t5, t4
-#   bnez t0, massive
-#   # We could not find a valid size.
-#   # Either we are at the end of the heap
-#   # or something has broken down.
-#   addi a0, a0, 1
-# finish:
-#   ret
-# massive: # f001 xxxx xxxxxxxx xxxxxxxx xxxxxxxx
-#   addi t0, zero, 0xFFFFFF
-#   slli t0, t0, 16
-#   addi t0, t0, 0xFFFFFFFF
-#   srli a0, t5, 32
-#   and a0, a0, t0
-#   addi a0, a0, 4 # the four bytes our metadata takes
-#   j finish
-# super_short: # f1xx xxxx
-#   addi t0, zero, 0x3F
-#   srli a0, t5, 32 + 16 + 8
-#   and a0, a0, t0
-#   addi a0, a0, 1 # one byte of metadata
-#   j finish
-# shortish: # f01x xxxx xxxx xxxx
-#   addi t0, zero, 0x3F
-#   slli t0, t0, 62 # free/allocated bit
-#   and a0, a0, t0
-#   addi a0, a0, 2 # two bytes of metadata
-#   j finish
-
-
-# allocate_existing:
-#   mv t5, a0 # base address
-#   addi t0, zero, 0x1
-#   slli t1, t0, 63 # free/allocated bit
-#   and a0, t5, t1 # Set a0 to the value of free
-#   srli t2, t1, 1  # super short
-#   and t0, t5, t2
-#   bnez t0, super_short
-#   srli t3, t2, 1  # shortish
-#   and t0, t5, t3
-#   bnez t0, shortish
-#   srli t4, t3, 1  # massive
-#   and t0, t5, t4
-#   bnez t0, massive
-#   # We could not find a valid size.
-#   # Either we are at the end of the heap
-#   # or something has broken down.
-#   mv a0, zero
-#   mv a1, zero
-# finish:
-#   ret
-# massive: # f001 xxxx xxxxxxxx xxxxxxxx xxxxxxxx
-#   addi a0, t5, 4
-#   j finish
-# super_short: # f1xx xxxx
-#   addi a0, t5, 1
-#   j finish
-# shortish: # f01x xxxx xxxx xxxx
-#   addi a0, t5, 2
-#   j finish
-
-# get_allocation_address_offset:
-#   li a0, 4
-#   ret
+# Constants
+.equ TAKEN_FLAG,        0x80000000
+# T1SS SSSS - 6 bit
+.equ SUPER_SHORT_FLAG,  0x40000000
+.equ SUPER_SHORT_MASK,  0x3F000000
+.equ SUPER_SHORT_SHIFT, 16 + 8
+.equ SUPER_SHORT_MAX,   64-1
+.equ SUPER_SHORT_SIZE,  1
+# T01S SSSS SSSS SSSS - 13 bit
+.equ SHORT_FLAG,        0x20000000
+.equ SHORT_MASK,        0x1FFF0000
+.equ SHORT_SHIFT,       16
+.equ SHORT_MAX,         8192-1
+.equ SHORT_SIZE,        2
+# T001 SSSS SSSS SSSS SSSS SSSS SSSS SSSS - 28 bit
+.equ MASSIVE_FLAG,      0x10000000
+.equ MASSIVE_MASK,      0x0FFFFFFF
+#.equ MASSIVE_SHIFT,     0
+.equ MASSIVE_MAX,       268435456-1
+.equ MASSIVE_SIZE,      4
 
 # Not likely to be necessary, but if
 # we don't and it is we are possibly
@@ -201,38 +33,199 @@ _init_heap:
   sd zero, 1(t0)
   ret
 
-# # a0: Requested byte count.
-# _get_some:
-#   mv s0, ra # Save return address.
-#   mv s1, a0 # Save the desired number of bytes.
-#   la s2, __heap_start$ # Start at the beginning of the heap.
-# check_block:
-#   ld s3, s2 # Load metadata.
-#   mv a0, s3 # Store a copy so we don't need to hit RAM so often.
-#   call is_metadata_allocated
-#   bnez a0, skip_to_next
-#   mv a0, s3 # Copy metadata to a0.
-#   call get_metadata_byte_count # Store bytes for metadata in a0.
-#   mv a1, s3 # Copy metadata to a1.
-#   call get_metadata_allocation_size # Get allocated byte count for block.
-#   ble s1, a0, allocate_existing # The block is large enough.
-#   bnez a0, skip_to_next # The block is too small.
-#   mv a0, s2 # Address.
-#   mv a1, s1 # Desired byte count.
-#   call create_metadata
-#   j done
-# allocate_existing:
-#   mv a0, s3 # The metadata.
-#   call set_metadata_allocated
-#   j done
-# skip_to_next:
-#   mv a0, s2
-#   call get_allocation_block_offset
-#   add s2, s2, a0
-#   j check_block
-# done:
-#   sd a0, 0(s2) # Store the update metadata.
-#   call get_allocation_address_offset
-#   add a0, a0, s2 # Get the user addressable data.
-#   mv ra, s0
-#   ret
+# Allocate a segment of memory, atleast the size of the
+# requested byte count, but aligned to metadata size.
+# a0: Requested byte count.
+_get_some:
+  addi sp, sp, -40
+  sd s0, 0(sp)
+  sd s1, 8(sp)
+  sd s2, 16(sp)
+  sd s3, 24(sp)
+  sd ra, 32(sp)
+  mv s0, a0
+  la s1, __heap_start$
+find_free_block:
+  ld s2, 0(s1) # Load current metadata.
+  bnez s2, check_if_block_is_free # We are not at the end of the heap.
+  mv a0, s0
+  call __allocate_new_block # Create metadata.
+  j return_address # Done!
+check_if_block_is_free:
+  mv a0, s2
+  call __get_allocated_size
+  mv s3, a0
+  mv a0, a1
+  call __get_shift_value
+  li t0, TAKEN_FLAG
+  srl t0, t0, a0
+  and t0, t0, s2
+  bnez t0, skip_to_next # This block is taken, jump to next block.
+  bgt s0, a0, skip_to_next # This block is too small, skip to next.
+  or a0, t0, s2 # Taken!
+  j return_address
+skip_to_next:
+  add s1, s1, s3 # Skip block.
+  j find_free_block # Try again.
+return_address:
+  sd a0, 0(s1)  # Store metadata.
+  mv a0, s1
+  add a0, s1, a1 # Move allocation address to a0 and offset.
+  ld s0, 0(sp)
+  ld s1, 8(sp)
+  ld s2, 16(sp)
+  ld s3, 24(sp)
+  ld ra, 32(sp)
+  addi sp, sp, 40
+  ret
+
+# a0: Size of metadata
+__get_shift_value:
+  addi sp, sp, -16
+  sd ra, 0(sp)
+  sd s0, 8(sp)
+  li s0, SUPER_SHORT_SIZE
+  bne a0, s0, short_value
+  li a0, SUPER_SHORT_SHIFT
+  j return_value
+short_value:
+  li s0, SHORT_SIZE
+  bne a0, s0, massive_value
+  li a0, SHORT_SHIFT
+  j return_value
+massive_value:
+  li a0, 0
+return_value:
+  ld ra, 0(sp)
+  ld s0, 8(sp)
+  addi sp, sp, 16
+  ret
+
+# a0: Metadata and possible extras.
+__get_allocated_size:
+  addi sp, sp, -8
+  sd ra, 0(sp)
+  li t0, SUPER_SHORT_FLAG
+  srli t0, t0, SUPER_SHORT_SHIFT
+  and t0, t0, a0
+  bnez t0, super_short_block_size
+  li t0, SHORT_FLAG
+  srli t0, t0, SHORT_SHIFT
+  and t0, t0, a0
+  bnez t0, short_block_size
+  li t0, MASSIVE_FLAG
+  and t0, t0, a0
+  bnez t0, massive_block_size
+  li a0, 0 # No space allocated.
+  li a1, 0 # Size not valid.
+super_short_block_size:
+  li t0, SUPER_SHORT_MASK
+  srli t0, t0, SUPER_SHORT_SHIFT
+  and a0, a0, t0
+  li a1, SUPER_SHORT_SIZE
+  j return_size
+short_block_size:
+  li t0, SHORT_MASK
+  srli t0, t0, SHORT_SHIFT
+  and a0, a0, t0
+  li a1, SHORT_SIZE
+  j return_size
+massive_block_size:
+  li t0, MASSIVE_MASK
+  and a0, a0, t0
+  li a1, MASSIVE_SIZE
+  j return_size
+return_size:
+  ld ra, 0(sp)
+  addi sp, sp, 8
+  ret
+
+# a0: Requested byte count.
+__allocate_new_block:
+  addi sp, sp, -8
+  sd ra, 0(sp)
+  mv t0, a0
+  li a0, SUPER_SHORT_MAX
+  li a1, SUPER_SHORT_SIZE
+  ble t0, a0, super_short_block
+  li a0, SHORT_MAX
+  li a1, SHORT_SIZE
+  ble t0, a0, short_block
+#  li a0, MASSIVE_MAX
+  li a1, MASSIVE_SIZE
+  mv a0, t0
+  add a0, a0, a1 # Pad with metadata size.
+  call __align_by
+  li t0, MASSIVE_FLAG
+  or a0, a0, t0
+  li t0, TAKEN_FLAG
+  or a0, a0, t0
+  j allocate_done
+super_short_block:
+  mv a0, t0
+  add a0, a0, a1 # Pad with metadata size.
+  call __align_by
+  li t0, SUPER_SHORT_FLAG
+  srli t0, t0, SUPER_SHORT_SHIFT
+  or a0, a0, t0
+  li t0, TAKEN_FLAG
+  srli t0, t0, SUPER_SHORT_SHIFT
+  or a0, a0, t0
+  j allocate_done
+short_block:
+  mv a0, t0
+  add a0, a0, a1 # Pad with metadata size.
+  call __align_by
+  li t0, SHORT_FLAG
+  srli t0, t0, SHORT_SHIFT
+  or a0, a0, t0
+  li t0, TAKEN_FLAG
+  srli t0, t0, SHORT_SHIFT
+  or a0, a0, t0
+allocate_done:
+  ld ra, 0(sp)
+  addi sp, sp, 8
+  ret
+
+# a0: Value to align.
+# a1: Value to align by.
+__align_by:
+  mv t0, a0
+  mv t1, ra
+calculate_modulo:
+  bgt a0, a1, subtract_more # If a0 is greater or equal to a1, reduce it.
+  j modulo_done # a0 is less than a1, so it's the modulo of a1.
+subtract_more:
+  sub a0, a0, a1 # Reduce a0 by a1.
+  j calculate_modulo # Check if we are done.
+modulo_done:
+  sub a0, a1, a0 # Calculate difference of a0 modulo a1, and a1.
+  add a0, t0, a0 # Add the difference to the value to align.
+  mv ra, t1
+  ret
+
+# Write a register in hex to the UART.
+__write_register:
+  addi sp, sp, -32 # Make space for s0, s1 and ra.
+  sd s0, 0(sp) # Store s0 on stack.
+  sd s1, 8(sp) # Store s1 on stack.
+  sd ra, 16(sp) # Store ra on stack.
+  sd a0, 24(sp) # Store the value.
+  li s0, 64 # The number of bits to write.
+  mv s1, a0 # The bits we want to write.
+write_more:
+  addi s0, s0, -4     # We write one hexadecimal (4 bit) character at a time.
+  srl a0, s1, s0      # We start with the highest bits we still haven't done.
+  andi a0, a0, 0xF    # And we only care about the last four bits.
+  call _num_to_hex    # Transform the bits to a hexadecimal character.
+  call _write_char    # Print the character to the UART.
+  bnez s0, write_more # If we have bits left, we write more.
+wrote_register:
+  call _newline
+  call _write_char
+  ld s0, 0(sp) # Restore s0 from stack.
+  ld s1, 8(sp) # Restore s1 from stack.
+  ld ra, 16(sp) # Restore ra from stack.
+  ld a0, 24(sp) # Restore the value.
+  addi sp, sp, 32 # Return stack space.
+  ret

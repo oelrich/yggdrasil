@@ -1,10 +1,24 @@
 .section .text
 
+.global _progress
 .global _write_char
 .global _write_str
 .global _read
 
 .equ UART, 0x10000000
+
+_progress:
+  addi sp, sp, -16
+  sd s0, 0(sp)
+  sd s1, 8(sp)
+  li s0, UART
+  li s1, 0x2B
+  sw s1, 0(s0)
+  ld s0, 0(sp)
+  ld s1, 8(sp)
+  addi sp, sp, 16
+  ret
+
 
 _read:
   addi a0, zero,0x0

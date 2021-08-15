@@ -16,3 +16,8 @@ With `sp` set and information regarding where the data segments end we can start
 We want to waste as little as possible of the available memory, but we still need to keep track of where the allocated blocks are. We also don't want to go weirdly complex in our first attempt. So we will (for the time being) ignore alignments and stick to a linear algorithm. Every allocation will have at least one byte of metadata. The first bit indicates if the block has been released or if it is still in use. Then follows a Huffman inspired coding of the number of bits in the allocation size field.
 
 So `f1xx xxxx` would indicate that the metadata byte contains the size field and that it can allocate up to 64 bytes. (If we realise that allocations of 1 - 64 quads are more common we can change to that later.)
+
+> Wines and cheeses that need to be ripened for some time before use should come with a "pest before" date.
+
+NOTE: After quite a bit of work i realise that the prefix model mentioned above should have been ignored until it was needed. Talk about premature optimisation ...
+
