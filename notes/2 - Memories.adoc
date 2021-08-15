@@ -21,3 +21,6 @@ So `f1xx xxxx` would indicate that the metadata byte contains the size field and
 
 NOTE: After quite a bit of work i realise that the prefix model mentioned above should have been ignored until it was needed. Talk about premature optimisation ...
 
+Finally the allocation part works. For some of the code to make sense we should really implement `_go_back_whence_you_came`. But that is both trickier and not exactly necessary this time.
+
+Trickier since the model is `<metadata bytes>+<allocated bytes>+` and since the user can put whatever they want into the allocated bytes it will be difficult to figure out if the address the user tries to return belongs to a big or small metadata block.
