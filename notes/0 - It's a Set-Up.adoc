@@ -4,15 +4,18 @@ This is more of a note to self than an actual guide ...
 
 == Tools
 
-* https://github.com/riscv/riscv-gnu-toolchain[]
-* https://github.com/riscv/riscv-openocd[]
-* https://github.com/riscv/riscv-isa-sim[]
-* https://gitlab.com/qemu-project/qemu[]
+Most of this runs in Ubunut under WSL using the Fish shell.
+
+=== https://github.com/riscv/riscv-gnu-toolchain[]
+
+Configure to put in for example `/opt/riscv` and then `set -x PATH /opt/riscv/bin $PATH`.
+
+=== https://github.com/riscv/riscv-openocd[]
+
+=== https://github.com/riscv/riscv-isa-sim[]
+
+=== https://gitlab.com/qemu-project/qemu[]
 
 == Commands
 
-If using Fish and installed under the path ...
-
-`set -x PATH /opt/riscv/bin $PATH`
-
-How to compile and run? See link:../Makefile[`Makefile`] and link:../yggdrasil.sh[`yggdrasil.sh`].
+Compile and run the thing using information in link:../Makefile[`Makefile`] and link:../yggdrasil.sh[`yggdrasil.sh`].

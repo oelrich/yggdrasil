@@ -17,7 +17,7 @@ yggdrasil: virt.lds \
 		funkis.o \
 		memories.o
 
-.SUFFIXES: .o .asm
+.SUFFIXES: .o .S
 
-%.o: src/%.asm
+%.o: src/%.S
 	riscv64-unknown-elf-as -verbose $< -o $@
