@@ -32,3 +32,4 @@ hex_print_num:
 _newline:
   li a0,NEW_LINE
   ret
+

@@ -69,7 +69,7 @@ skip_to_next:
   j find_free_block # Try again.
 return_address:
   sd a0, 0(s1)  # Store metadata.
-  mv a0, s1
+  mv a0, s1 # Get pointer address
   add a0, s1, a1 # Move allocation address to a0 and offset.
   ld s0, 0(sp)
   ld s1, 8(sp)

@@ -130,7 +130,7 @@ no_sleep:
   call _newline
   call _write_char
   #mv t0, a0
-  sd 0x48, 0(a0)
+  sb 0x48, 0(a0)
   sb 0x65, 1(a0)
   sb 0x6c, 2(a0)
   sb 0x6c, 3(a0)

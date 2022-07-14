@@ -1,0 +1,42 @@
+= Semantics
+
+The idea is to construct a system that can reason about its own running state. This is of course not possible, but hopefully we can expand what can be done.
+
+The first step is to consider what a running system consists of. Some sort of CPU, storage for programs, various devices and time to run.
+
+== Memory
+
+We have a group of registers in the CPU, RAM and then hard disk storage. With various caching levels and strategies. We could also consider network stroage (and possibly addressable memory).
+
+Storage can be accessed using a load or store operation on an address. The address can be either an offset of some base address or a machine global address. If we consider the network we could add the machine address as a base and offset from that.
+.\:
+
+== Operation
+
+The number deisgnating an operation contains bits that constitutes the operation identity and possibly bits containing one or more immediate operands.
+
+Op: identifying bits, variable (immediate) bits
+
+Bit meaning:
+
+op: b0, ..., bN
+
+op_id_mask: 
+
+op_id: bits_id + bits_variable
+op_id
+
+(id, op, sources, destinations)
+
+
+== Resources
+
+We will concider a program as instructions stored in memory accessible to a CPU.
+
+=== Compute
+ALU, FPU, GPU, DSP ...
+
+=== Memory
+
+=== Locality
+
